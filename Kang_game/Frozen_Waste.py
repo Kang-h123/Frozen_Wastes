@@ -73,8 +73,20 @@ class Game:
         self.character_image = pygame.image.load("Imgs/character.png")
         self.character_image = pygame.transform.scale(self.character_image, (30, 80)) 
         self.floor_image = pygame.image.load("Imgs/ground.png")
+        self.enemy_image = pygame.image.load("Imgs/ice_enemy.png")
+        
 
-        self.all_rect = {"rect1": [200, 700, 200, 50], "rect2": [550, 700, 400, 50], "rect3": [900, 700, 500, 50]}
+        enemy_size_x = 100
+        enemy_size_y = 100
+        self.enemy_image = pygame.transform.scale(self.enemy_image, (enemy_size_x, enemy_size_y))
+
+        self.all_rect = {"rect1": [200, 700, 200, 50], "rect2": [550, 700, 400, 50], "rect3": [1050, 700, 500, 50]}
+        self.all_enemy = {
+            "enemy1": [600, 600], "enemy2": [1200, 600]
+        }
+
+        for k, v in self.all_enemy.items():
+            setattr(self, k, self.enemy_image.get_rect(topleft = (v[0], v[1])))
 
         for k, v in self.all_rect.items():
             a = k + "_image"
@@ -130,7 +142,8 @@ class Game:
             char_x -= char_velocity_x
             for k, v in self.all_rect.items():
                 v[0] -= char_velocity_x 
-
+            for k, v in self.all_enemy.items():
+                v[0] -= char_velocity_x
             char_y += char_velocity_y
 
 
@@ -143,15 +156,31 @@ class Game:
 
             char_x = max(200, min(char_x, 650))  
 
+
+            if self.touched_enemy(char_x, char_y, self.all_enemy, enemy_size_x, enemy_size_y):
+                self.GameOver()
+
             # Draw background, floor, and character
             self.screen.blit(self.background_image, (0, 0))
             for k, v in self.all_rect.items():
                 a = k + "_image"
                 self.screen.blit(getattr(self, a), (v[0], v[1]))
+            for k, v in self.all_enemy.items():
+                self.screen.blit(self.enemy_image, (v[0], v[1]))
             self.screen.blit(self.character_image, (char_x, char_y))
 
             pygame.display.update()
             self.clock.tick(60)
+
+    def GameOver(self):
+        self.background_image = pygame.image.load("Imgs/game_over.png")
+
+        while True:
+            self.screen.blit(self.background_image, (0, 0))
+
+            pygame.display.update()
+            self.clock.tick(60)
+
 
     def check_collision(self, char_x, char_y, char_velocity_y, rectx, recty, sizex, sizey):
         on_floor = False
@@ -172,6 +201,19 @@ class Game:
             on_floor = False
         
         return char_y, char_velocity_y, on_floor
+
+    def touched_enemy(self, char_x, char_y, enemy_list, enemy_sizex, enemy_sizey):
+        touched = False
+        for k, v in enemy_list.items():
+            if v[0] <= char_x <= v[0] + enemy_sizex or \
+                v[0] + enemy_sizex >= char_x + 30 >= v[0]:
+                if v[1] <= char_y <= v[1] + enemy_sizey or \
+                    v[1] + enemy_sizey >= char_y + 80 >= v[1]:
+                    touched = True
+
+            return touched
+
+
 
 Game().main_menu()
 
