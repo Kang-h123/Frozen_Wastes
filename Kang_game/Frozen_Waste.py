@@ -1,5 +1,6 @@
 import sys
 import pygame
+import time
 
 class Game:
     def __init__(self):
@@ -74,15 +75,16 @@ class Game:
         self.character_image = pygame.transform.scale(self.character_image, (30, 80)) 
         self.floor_image = pygame.image.load("Imgs/ground.png")
         self.enemy_image = pygame.image.load("Imgs/ice_enemy.png")
+        self.health_image = pygame.image.load("Imgs/full_health.png")
         
 
-        enemy_size_x = 100
-        enemy_size_y = 100
+        enemy_size_x = 40
+        enemy_size_y = 70
         self.enemy_image = pygame.transform.scale(self.enemy_image, (enemy_size_x, enemy_size_y))
 
         self.all_rect = {"rect1": [200, 700, 200, 50], "rect2": [550, 700, 400, 50], "rect3": [1050, 700, 500, 50]}
         self.all_enemy = {
-            "enemy1": [600, 600], "enemy2": [1200, 600]
+            "enemy1": [600, 625], "enemy2": [1200, 625]
         }
 
         for k, v in self.all_enemy.items():
@@ -115,6 +117,11 @@ class Game:
         gravity = 1
         jump_power = -15
         on_floor = False
+        
+        health = 3
+        self.start = time.time()
+
+
 
         while True:
             for event in pygame.event.get():
@@ -158,6 +165,20 @@ class Game:
 
 
             if self.touched_enemy(char_x, char_y, self.all_enemy, enemy_size_x, enemy_size_y):
+                self.end = time.time()
+                if (self.end - self.start) > 0.8:
+                    health -= 1
+                    self.start = time.time()
+                
+                
+
+            if health == 3:
+                self.health_image = pygame.image.load("Imgs/full_health.png")
+            elif health == 2:
+                self.health_image = pygame.image.load("Imgs/half_health.png")
+            elif health == 1:
+                self.health_image = pygame.image.load("Imgs/low_health.png")
+            else:
                 self.GameOver()
 
             # Draw background, floor, and character
@@ -168,15 +189,26 @@ class Game:
             for k, v in self.all_enemy.items():
                 self.screen.blit(self.enemy_image, (v[0], v[1]))
             self.screen.blit(self.character_image, (char_x, char_y))
+            self.screen.blit(self.health_image, (20, 50))
 
             pygame.display.update()
             self.clock.tick(60)
+            # print(char_x, char_y, self.all_enemy)
 
     def GameOver(self):
         self.background_image = pygame.image.load("Imgs/game_over.png")
 
         while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+
+
             self.screen.blit(self.background_image, (0, 0))
+
+
 
             pygame.display.update()
             self.clock.tick(60)
@@ -207,12 +239,13 @@ class Game:
         for k, v in enemy_list.items():
             if v[0] <= char_x <= v[0] + enemy_sizex or \
                 v[0] + enemy_sizex >= char_x + 30 >= v[0]:
-                if v[1] <= char_y <= v[1] + enemy_sizey or \
-                    v[1] + enemy_sizey >= char_y + 80 >= v[1]:
-                    touched = True
+                if char_y <= v[1] <= char_y + 80 or \
+                    char_y + 80 >= v[1] + enemy_sizey >= char_y:
+                        touched = True
 
-            return touched
+        return touched
 
+        
 
 
 Game().main_menu()
