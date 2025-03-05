@@ -78,8 +78,8 @@ class Game:
         self.health_image = pygame.image.load("Imgs/full_health.png")
         
 
-        enemy_size_x = 40
-        enemy_size_y = 70
+        enemy_size_x = 30
+        enemy_size_y = 50
         self.enemy_image = pygame.transform.scale(self.enemy_image, (enemy_size_x, enemy_size_y))
 
         self.all_rect = {"rect1": [200, 700, 200, 50], "rect2": [550, 700, 400, 50], "rect3": [1050, 700, 500, 50]}
@@ -95,20 +95,7 @@ class Game:
             setattr(self, a, pygame.transform.scale(self.floor_image, (v[-2], v[-1])))
             setattr(self, k, self.floor_image.get_rect(topleft=(v[0], v[1])))
         
-        # self.floor_image = pygame.transform.scale(self.floor_image, (200, 50))  
 
-        # rect_x, rect_y = 200, 700
-        # rect1_x, rect1_y = 550, 700
-        # rect2_x, rect2_y = 800, 700
-        # rect3_x, rect3_y = 1000, 700
-        
-        # self.floor_rect = self.floor_image.get_rect(topleft=(0, 750))  
-
-        # self.floor_rect1 = self.floor_image.get_rect(topleft=(350, 750))
-
-        # self.floor_rect2 =self.floor_image.get_rect(topleft=(700, 750))
-
-        # self.floor_rect3 =self.floor_image.get_rect(topleft=(1050, 750))
 
         # Character properties
         char_x, char_y = 50, 400 
@@ -121,7 +108,7 @@ class Game:
         health = 3
         self.start = time.time()
 
-
+        
 
         while True:
             for event in pygame.event.get():
@@ -181,6 +168,11 @@ class Game:
             else:
                 self.GameOver()
 
+            if self.fall(char_y):
+                self.GameOver()
+            
+            
+            
             # Draw background, floor, and character
             self.screen.blit(self.background_image, (0, 0))
             for k, v in self.all_rect.items():
@@ -197,12 +189,20 @@ class Game:
 
     def GameOver(self):
         self.background_image = pygame.image.load("Imgs/game_over.png")
-
+        self.button_image = pygame.image.load("Imgs/tryagain_button.png")
+        self.tryagain_button_rect = self.button_image.get_rect(center = (250, 400))
+        
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.tryagain_button_rect.collidepoint(event.pos):
+                        self.main_menu()
+            self.screen.blit(self.button_image, self.tryagain_button_rect.center)
+            pygame.display.update()
+            self.clock.tick(60)
 
 
 
@@ -233,6 +233,7 @@ class Game:
             on_floor = False
         
         return char_y, char_velocity_y, on_floor
+    
 
     def touched_enemy(self, char_x, char_y, enemy_list, enemy_sizex, enemy_sizey):
         touched = False
@@ -242,9 +243,15 @@ class Game:
                 if char_y <= v[1] <= char_y + 80 or \
                     char_y + 80 >= v[1] + enemy_sizey >= char_y:
                         touched = True
-
+                        
         return touched
+    
+    def fall(self, char_y):
+        if char_y > 780:
+            
+            return True
 
+   
         
 
 
