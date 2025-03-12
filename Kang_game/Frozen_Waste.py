@@ -120,10 +120,15 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
                         char_velocity_x = 5  
+                        self.direction = 'right'
                     if event.key == pygame.K_LEFT:
                         char_velocity_x = -5  
+                        self.direction = 'left'
                     if event.key == pygame.K_SPACE and on_floor:  
                         char_velocity_y = jump_power
+                    if event.key == pygame.K_c:
+                        self.all_enemy = self.slashed(char_x, char_y, self.direction, self.all_enemy, enemy_size_x, enemy_size_y)
+
 
                 if event.type == pygame.KEYUP:
                     if event.key in [pygame.K_RIGHT, pygame.K_LEFT]:
@@ -200,13 +205,16 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.tryagain_button_rect.collidepoint(event.pos):
                         self.main_menu()
+                        
+            
+            self.screen.blit(self.background_image, (0, 0))
             self.screen.blit(self.button_image, self.tryagain_button_rect.center)
             pygame.display.update()
             self.clock.tick(60)
 
 
 
-            self.screen.blit(self.background_image, (0, 0))
+            
 
 
 
@@ -246,6 +254,25 @@ class Game:
                         
         return touched
     
+    def slashed(self, char_x, char_y, direction, enemy_list, enemy_sizex, enemy_sizey):
+        if direction == 'left':
+            slashx = char_x - 30
+            slashy = char_y + 20
+        else:
+            slashx = char_x + 30
+            slashy = char_y + 20
+
+        for k, v in enemy_list.items():
+            if v[0] <= slashx <= v[0] + enemy_sizex or \
+                v[0] + enemy_sizex >= slashx + 40 >= v[0]:
+                if v[1] <= slashy <=  v[1] + enemy_sizey or \
+                    v[1] + enemy_sizey >= slashy + 40 >= v[1]:
+                    del enemy_list[k]
+                    print("you hit it")
+                    break
+        
+        return enemy_list
+
     def fall(self, char_y):
         if char_y > 780:
             
