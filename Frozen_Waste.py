@@ -84,9 +84,12 @@ class Game:
         enemy_size_y = 50
         self.enemy_image = pygame.transform.scale(self.enemy_image, (enemy_size_x, enemy_size_y))
 
-        self.all_rect = {"rect1": [200, 700, 200, 50], "rect2": [550, 700, 400, 50], "rect3": [1050, 700, 500, 50]}
+        self.all_rect = {"rect1": [300, 700, 200, 50], "rect2": [575, 700, 350, 50], 
+                         "rect3": [1050, 700, 600, 50], "rect4": [1700, 600, 600, 150], 
+                         "rect5": [2300, 500, 350, 250], "rect6": [2650, 400, 250, 350],
+                         "rect7": [3050, 700, 550, 50]}
         self.all_enemy = {
-            "enemy1": [600, 625], "enemy2": [1200, 625]
+            "enemy1": [700, 625], "enemy2": [1200, 625], "enemy3": [2000, 525], "enemy4": [2750, 250], "enemy5": [2800, 325]
         }
 
         for k, v in self.all_enemy.items():
@@ -151,6 +154,8 @@ class Game:
             char_velocity_y += gravity
 
             
+            if slash == True:
+                char_velocity_x = 0
 
             char_x -= char_velocity_x
             for k, v in self.all_rect.items():
@@ -300,10 +305,10 @@ class Game:
 
 
         if direction == 'left':
-            slashx = char_x - 40
+            slashx = char_x - 30
             slashy = char_y + 20
         else:
-            slashx = char_x + 30
+            slashx = char_x + 40
             slashy = char_y + 20
 
         for k, v in enemy_list.items():
